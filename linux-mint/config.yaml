@@ -1,6 +1,6 @@
 name: "Linux Mint"
 description: "Linux Mint Cinnamon desktop environment accessible via web browser using noVNC"
-version: "1.2.0"
+version: "1.3.0"
 slug: "linux-mint"
 url: "https://github.com/phdindota/linux-mint-homeassistant"
 

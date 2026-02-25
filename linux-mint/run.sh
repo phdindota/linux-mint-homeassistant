@@ -104,63 +104,108 @@ fi
 bashio::log.info "noVNC found at: ${NOVNC_PATH}"
 
 # ---------------------------------------------------------------------------
-# Create index.html that auto-connects to VNC with correct websocket path
+# Create index.html that auto-connects — NO REDIRECT approach
 # ---------------------------------------------------------------------------
-# For BOTH direct access (port 6080) and HA ingress, websockify handles
-# the /websockify path. HA ingress strips its prefix before forwarding,
-# so the container always sees the request at root. Therefore the websocket
-# path is always just "websockify" (relative, no leading slash).
-#
-# We use vnc_lite.html if available (simpler, self-contained) or vnc.html.
-# ---------------------------------------------------------------------------
-
-NOVNC_HTML="vnc.html"
-if [ -f "${NOVNC_PATH}/vnc_lite.html" ]; then
-    NOVNC_HTML="vnc_lite.html"
-fi
+# The key problem with redirects is that they lose the ingress path context.
+# Instead, we create a self-contained page that loads noVNC's RFB module
+# and connects directly. The WebSocket URL is computed from window.location
+# which preserves the full ingress path.
 
 cat > "${NOVNC_PATH}/index.html" << 'INDEXEOF'
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linux Mint Desktop</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a2e;
+        }
+        #screen {
+            width: 100%;
+            height: 100%;
+        }
+        #status {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #87b37a;
+            font-family: sans-serif;
+            font-size: 1.2em;
+            z-index: 1000;
+        }
+    </style>
 </head>
 <body>
-    <script>
-        // Build the noVNC URL with auto-connect parameters.
-        // The websocket path is simply "websockify" — this works for both:
-        //   - Direct access on port 6080
-        //   - Home Assistant ingress (which strips its prefix before forwarding)
-        var host = window.location.hostname;
-        var port = window.location.port;
+    <div id="status">Connecting to Linux Mint desktop...</div>
+    <div id="screen"></div>
 
-        // Determine which noVNC HTML file to use
-        var vncPage = 'NOVNC_HTML_PLACEHOLDER';
+    <script type="module">
+        // Import noVNC's RFB class
+        import RFB from './core/rfb.js';
 
-        // Build URL - use the same origin, just change the page
-        var params = new URLSearchParams();
-        params.set('autoconnect', 'true');
-        params.set('resize', 'remote');
-        params.set('reconnect', 'true');
-        params.set('reconnect_delay', '1000');
-        params.set('path', 'websockify');
-        params.set('host', host);
-        if (port) params.set('port', port);
+        // Compute WebSocket URL from current location
+        // This preserves the full path including HA ingress prefix
+        var loc = window.location;
+        var wsScheme = loc.protocol === 'https:' ? 'wss' : 'ws';
 
-        window.location.replace(vncPage + '?' + params.toString());
+        // Get the base path, strip trailing filename (like index.html) and slashes
+        var basePath = loc.pathname;
+        // Remove trailing filename if present
+        basePath = basePath.replace(/\/[^\/]*\.[^\/]*$/, '/');
+        // Ensure it ends with /
+        if (!basePath.endsWith('/')) basePath += '/';
+
+        var wsUrl = wsScheme + '://' + loc.host + basePath + 'websockify';
+
+        var statusEl = document.getElementById('status');
+        statusEl.textContent = 'Connecting to Linux Mint desktop...';
+
+        try {
+            var rfb = new RFB(
+                document.getElementById('screen'),
+                wsUrl,
+                {}
+            );
+
+            rfb.scaleViewport = true;
+            rfb.resizeSession = true;
+
+            rfb.addEventListener('connect', function() {
+                statusEl.style.display = 'none';
+                console.log('Connected to Linux Mint desktop');
+            });
+
+            rfb.addEventListener('disconnect', function(e) {
+                statusEl.style.display = 'block';
+                if (e.detail.clean) {
+                    statusEl.textContent = 'Disconnected from desktop.';
+                } else {
+                    statusEl.textContent = 'Connection lost. Reconnecting in 3s...';
+                    setTimeout(function() { location.reload(); }, 3000);
+                }
+            });
+
+            rfb.addEventListener('credentialsrequired', function() {
+                statusEl.textContent = 'VNC password required...';
+                var pw = prompt('Enter VNC password:');
+                if (pw) rfb.sendCredentials({ password: pw });
+            });
+        } catch(err) {
+            statusEl.textContent = 'Error: ' + err.message;
+            console.error('noVNC error:', err);
+        }
     </script>
-    <noscript>
-        <p>JavaScript is required. Please enable JavaScript and reload.</p>
-    </noscript>
 </body>
 </html>
 INDEXEOF
-
-# Replace the placeholder with the actual noVNC HTML filename
-sed -i "s|NOVNC_HTML_PLACEHOLDER|${NOVNC_HTML}|g" "${NOVNC_PATH}/index.html"
-
-bashio::log.info "Using noVNC page: ${NOVNC_HTML}"
 bashio::log.info "Starting noVNC/websockify on port 6080 (proxying VNC on 5900)"
 websockify --web "${NOVNC_PATH}" 0.0.0.0:6080 localhost:5900 &
 WEBSOCKIFY_PID=$!

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0
+
+- Fixed HA sidebar "Something went wrong, connection is closed" error
+- Replaced JavaScript redirect approach with self-contained noVNC client page
+- WebSocket URL now correctly preserves HA ingress path prefix
+- No more page redirects — index.html IS the VNC client
+- Auto-reconnect on disconnection
+- Full-screen responsive VNC display
+
 ## 1.2.0
 
 - Fixed noVNC hanging at "Connecting to Linux Mint desktop..." on both direct port and HA ingress
