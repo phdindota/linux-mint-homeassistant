@@ -2,9 +2,9 @@
 
 ## What This App Does
 
-This add-on provides a Linux Mint-style desktop environment accessible directly from your Home Assistant instance via a web browser. It uses **XFCE4** as the desktop environment (with Mint-like configuration) running inside a container, exposed through **noVNC** so you can interact with a full graphical desktop without any additional client software.
+This add-on provides a Linux Mint Cinnamon desktop environment accessible directly from your Home Assistant instance via a web browser. It uses **Cinnamon** as the desktop environment running inside a Debian Bookworm container, exposed through **noVNC** so you can interact with a full graphical desktop without any additional client software.
 
-> **Note:** Due to the resource requirements of the Cinnamon desktop (Linux Mint's native DE), this add-on uses the **XFCE4** desktop environment, which is lightweight and well-suited for container environments while still providing a familiar Linux desktop experience.
+> **Note:** Cinnamon is Linux Mint's native desktop environment. It provides an authentic Linux Mint experience but requires more RAM and CPU than lightweight alternatives. A system with at least 2 GB of free RAM is recommended.
 
 ---
 
@@ -63,7 +63,7 @@ Or for VNC clients (e.g. RealVNC, TigerVNC):
 
 ## Known Limitations
 
-- **Cinnamon not included:** Linux Mint's default Cinnamon desktop is too resource-intensive for container environments; XFCE4 is used instead.
+- **Higher resource usage:** Cinnamon is Linux Mint's full desktop environment and uses more RAM and CPU than lightweight alternatives. At least 2 GB of free RAM is recommended; consider using `1280x720` resolution on lower-end hardware.
 - **No audio:** Audio pass-through is not supported in this add-on.
 - **No GPU acceleration:** The virtual framebuffer (Xvfb) does not support 3D/GPU acceleration. Applications requiring hardware-accelerated graphics may not work correctly.
 - **Performance:** High resolutions may result in sluggish performance depending on your hardware and network conditions. Consider using `1280x720` on lower-end hardware.
