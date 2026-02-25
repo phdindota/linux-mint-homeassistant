@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0
+
+- Fixed noVNC hanging at "Connecting to Linux Mint desktop..." on both direct port and HA ingress
+- Replaced broken JavaScript redirect with proper auto-connect approach
+- WebSocket path is now simply "websockify" (works for both direct and ingress access)
+- Added python3-websockify package for proper Debian websockify support
+- Added process health checks for Xvfb and x11vnc
+- Increased Cinnamon startup wait time for reliability
+- Added x11vnc auto-retry on failure
+
 ## 1.1.0
 
 - Switched from XFCE4 to Linux Mint Cinnamon desktop environment

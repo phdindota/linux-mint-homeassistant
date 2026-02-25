@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
     novnc \
     websockify \
+    python3 \
+    python3-websockify \
     bash \
     sudo \
     wget \
@@ -34,13 +36,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN useradd -m -s /bin/bash linuxmint \
     && echo "linuxmint ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Set up noVNC - find the correct path and create index.html
-RUN NOVNC_DIR="" && \
-    if [ -d "/usr/share/novnc" ]; then NOVNC_DIR="/usr/share/novnc"; \
-    elif [ -d "/usr/share/webapps/novnc" ]; then NOVNC_DIR="/usr/share/webapps/novnc"; fi && \
-    if [ -n "$NOVNC_DIR" ]; then \
-      ln -sf "$NOVNC_DIR/vnc.html" "$NOVNC_DIR/index.html" 2>/dev/null || true; \
-    fi
+# Verify noVNC installation
+RUN echo "=== noVNC files ===" && ls -la /usr/share/novnc/ && \
+    echo "=== websockify location ===" && which websockify
 
 # Copy rootfs overlay
 COPY rootfs /
