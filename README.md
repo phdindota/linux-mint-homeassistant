@@ -4,9 +4,9 @@
 ![Supports amd64](https://img.shields.io/badge/arch-amd64-blue)
 ![Supports aarch64](https://img.shields.io/badge/arch-aarch64-blue)
 
-A Home Assistant add-on that provides a **Linux Mint-style desktop environment** accessible via a web browser through [noVNC](https://novnc.com/). Interact with a full graphical Linux desktop directly from your Home Assistant sidebar — no VNC client required.
+A Home Assistant add-on that provides a **Linux Mint Cinnamon desktop environment** accessible via a web browser through [noVNC](https://novnc.com/). Interact with a full graphical Linux desktop directly from your Home Assistant sidebar — no VNC client required.
 
-> **Note:** The add-on uses the **XFCE4** desktop environment (lightweight, container-friendly) rather than Linux Mint's native Cinnamon desktop, which is too resource-intensive for container environments.
+> **Note:** This add-on uses the **Cinnamon** desktop environment (Linux Mint's native DE) running on a Debian Bookworm base image. Cinnamon provides a full Linux Mint experience but requires more resources than lightweight alternatives.
 
 ---
 
