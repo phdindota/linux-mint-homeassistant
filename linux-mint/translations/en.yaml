@@ -1,0 +1,10 @@
+configuration:
+  resolution:
+    name: Screen Resolution
+    description: The screen resolution for the virtual display (e.g. "1920x1080", "1280x720").
+  vnc_password:
+    name: VNC Password
+    description: Optional password for VNC access. Leave empty to disable password protection.
+  username:
+    name: Desktop Username
+    description: The username for the desktop session account created inside the container.

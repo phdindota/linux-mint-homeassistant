@@ -1,0 +1,38 @@
+name: "Linux Mint"
+description: "Linux Mint desktop environment accessible via web browser using noVNC"
+version: "1.0.0"
+slug: "linux-mint"
+url: "https://github.com/phdindota/linux-mint-homeassistant"
+
+arch:
+  - aarch64
+  - amd64
+
+ports:
+  6080/tcp: 6080
+  5900/tcp: 5900
+
+ports_description:
+  6080/tcp: "noVNC web interface"
+  5900/tcp: "VNC server"
+
+ingress: true
+ingress_port: 6080
+panel_icon: "mdi:monitor"
+panel_title: "Linux Mint"
+
+startup: "application"
+boot: "manual"
+host_network: false
+apparmor: false
+init: false
+
+options:
+  resolution: "1920x1080"
+  vnc_password: ""
+  username: "user"
+
+schema:
+  resolution: "str"
+  vnc_password: "str?"
+  username: "str"
